@@ -3,39 +3,29 @@ import feather
 import pandas as pd
 
 # %%
-df = pd.read_excel('./data/peruvian_enterprise_list.xlsx',
-                   sheet_name='Sheet1', header=2, index_col=None)
-df.head()
-
-# %%
-df.shape
-
-# %%
-# convert first column into integer
-df['Unnamed: 0'] = df['Unnamed: 0'].astype(int)
-
-# %%
-# watch if there a duplicate value
-df[df.duplicated() == True]
 
 
-# %%
-# convert list of columns from object to string
-for column in [
-    'RAZÓN SOCIAL', 'RUC/DNI', 'SECTOR ECONÓMICO', 'NOMBRE DE ENTIDAD OTORGANTE DEL CRÉDITO',
-    'NOMBRE DE 2DA. ENTIDAD OTORGANTE DEL CRÉDITO*', 'MONTO PRÉSTAMO (S/)',
-        'MONTO COBERTURADO (S/)', 'DEPARTAMENTO']:
-    df[column] = df[column].astype(str)
+def convert_excel_to_feather(
+        input_file: str, output_file: str, sheet_name: str, header: int, index_col=None) -> None:
+    df = pd.read_excel(filepath=input_file,
+                       sheet_name=sheet_name, header=header, index_col=index_col)
+    df = df.astype(str)
+    feather.write_dataframe(df, output_file)
+
+
+def convert_csv_to_feather(input_file: str, output_file: str) -> None:
+    df = pd.read_csv(input_file)
+    # df = df.astype(str)
+    feather.write_dataframe(df, output_file)
 
 
 # %%
-df.to_feather('./peruvian_enterprise_list.feather')
+input_file = "./data/DatosViernesNegro.csv"
+output_file = "./data/DatosViernesNegro.feather"
+sheet_name = "DatosViernesNegro"
+header = 0
+
+convert_csv_to_feather(input_file, output_file)
 
 # %%
-feather.write_dataframe(df, './data/peruvian_enterprise_list.feather')
-
-# %%
-df = pd.read_feather('./data/peruvian_enterprise_list.feather')
-
-# %%
-df.tail()
+df = pd.read_feather(output_file)
